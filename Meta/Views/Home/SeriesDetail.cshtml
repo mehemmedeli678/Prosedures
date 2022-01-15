@@ -1,0 +1,41 @@
+﻿@model SeriesVM
+
+<div class="container">
+    <div class="d-flex">
+        <div class="col-lg-8">
+            <div style="height:200px;" class="col-lg-12 card m-4">
+                @Model.Series.UrlName
+            </div>
+            <div class="my-4">
+                <h1>@Model.Series.Name</h1>
+                <h3>Name : @Model.Series.SeasonNumber sezon @Model.Series.SeriaNumber bolum</h3>
+                <h5>Description : @Model.Series.Description</h5>
+                <h4>Picture : @Model.Series.SeasonPicture</h4>
+                <div class="border">
+                    <h4>Butun bolumler :</h4>
+                    @foreach (var item in Model.Seasons)
+                    {
+                        <p>@item.SeasonNumber sezon</p>
+                        @foreach (var ser in item.Series)
+                        {
+                            <a href="/home/seriesDetail/@ser.Id">@ser.SeriaNumber bolum</a>
+                        }
+                    }
+                </div>
+
+                <span>Categoriyalar</span>
+                @foreach (var item in Model.Categories)
+                {
+                    @item.Name;
+                }
+                <span>CommentLer:</span>
+                @foreach (var item in Model.Comment)
+                {
+                 <p>@item.User.Name : @item.Text <span class="alert-danger">@item.Spolier</span> </p>
+                }
+            </div>
+        </div>
+        <div class="col-lg-4">
+        </div>
+    </div>
+</div>

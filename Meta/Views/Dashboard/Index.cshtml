@@ -1,0 +1,16 @@
+﻿@model List<Content>
+
+
+<div class="container">
+    <a href="dashboard/add" class="alert-danger m-2">ADD</a>
+    <div class="">
+        @foreach (var item in Model)
+        {
+            var sl = item.ContentLanguages.FirstOrDefault(x => x.LanguageKey == "AZ");
+            <div class="d-flex border">
+                <h3>@sl.Name</h3>
+                <span class="mx-4">@item.Type.Name</span>
+            </div>
+        }
+    </div>
+</div>

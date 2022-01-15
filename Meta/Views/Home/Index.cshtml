@@ -1,0 +1,56 @@
+﻿@model HomeVM
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+<ul>
+    @foreach (var item in Model.Languages)
+    {
+        <li><a href="/home/Index/@item.Name" >@item.Name</a></li>
+    }
+</ul>
+<div class="container">
+    <ul>
+
+        @foreach (var item in Model.Categories)
+        {
+        <li>
+            @item.CategoryLanguages.FirstOrDefault(x => x.LanguageKey == Model.Lang).Name
+        </li>
+        }
+    </ul>
+</div>
+<div class="container my-4">
+    <div class="d-flex flex-wrap col-lg-12">
+        @foreach (var item in Model.Contents)
+        {
+            <div class="card col-lg-4 my-2 p-1">
+                <div class="d-flex justify-content-between">
+                    <img src="" alt=" @item.MainPicture" />
+                    @item.Type.Name
+                </div>
+                <div style="color:red;" class="">
+                    @(item.IsFree ? "Free":"Yalniz istifadeciler")
+                    <p>@(item.Age)</p>
+                    @foreach (var cat in item.ContentToCategories)
+                    {
+                        @cat.Category.CategoryLanguages.FirstOrDefault(x=>x.LanguageKey==Model.Lang).Name
+                    }
+                </div>
+                @if (item.Type.Name == "Film")
+                {
+            <p>IMDB: @item.Films.FirstOrDefault(x => x.ContentId == item.Id).Imdb</p>
+                    <a href="/home/FilmDetail/@item.Id"> @item.ContentLanguages.FirstOrDefault(x => x.LanguageKey == Model.Lang).Name </a>
+                }
+                else if (item.Type.Name == "TvShow")
+                {
+                    <a href="/home/TvShowDetail/@item.Id"> @item.ContentLanguages.FirstOrDefault(x => x.LanguageKey == Model.Lang).Name</a>
+                }
+                else if (item.Type.Name == "CinemaLab")
+                {
+                    <a href="/home/FilmDetail/@item.Id"> @item.ContentLanguages.FirstOrDefault(x => x.LanguageKey == Model.Lang).Name</a>
+                }
+            </div>
+        }
+    </div>
+</div>

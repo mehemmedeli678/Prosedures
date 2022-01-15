@@ -1,0 +1,44 @@
+﻿@model TvShowVM
+
+<div class="container">
+    <div class="d-flex">
+        <div class="col-lg-8">
+            <div style="" class="col-lg-12 card m-4">
+                @foreach (var item in Model.Seasons)
+                {
+                    <span>@item.SeasonNumber Sezon</span>
+
+                    <div class="border">
+                        @foreach (var series in item.Series)
+                        {
+                            <a href="/home/SeriesDetail/@series.Id">@series.SeriaNumber bolum</a>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="my-4">
+                <h3>Name : @Model.TvShow.Name</h3>
+                <h5>Description : @Model.TvShow.Description</h5>
+                <h4>Picture : @Model.TvShow.MainPicture</h4>
+                <h4>Directors :</h4>
+                @foreach (var item in Model.Directors)
+                {
+                    @item.Name
+                }
+                <h4>Actors:</h4>
+                @foreach (var item in Model.Actors)
+                {
+                    @item.Name
+                }
+                <h4>IMDB:@Model.TvShow.Imdb</h4>
+                <span>Categoriyalar</span>
+                @foreach (var item in Model.Categories)
+                {
+                    @item.Name
+                }
+            </div>
+        </div>
+        <div class="col-lg-4">
+        </div>
+    </div>
+</div>

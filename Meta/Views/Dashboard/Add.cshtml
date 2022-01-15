@@ -1,0 +1,202 @@
+﻿@model AddVM
+<h1>Create</h1>
+
+<h4>Product</h4>
+<hr />
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form id="ProductCreate">
+            <input name="sizeIds" id="sizeIds" type="hidden" />
+            <input name="colorIds" id="colorIds" type="hidden" />
+            <input name="Photo" id="PhotoID" type="hidden" />
+            <div class="text-danger"></div>
+            <div class="d-flex flex-wrap">
+                @foreach (var item in Model.Languages)
+                {
+                    <div class="form-group">
+                        <label class="control-label">@item.Name Name</label>
+                        <input id="Name" name="Name" class="form-control" />
+                    </div>
+                }
+            </div>
+            <div class="table-bordered">
+                @foreach (var item in Model.Languages)
+                {
+                    <div class="form-group">
+                        <label class="control-label">@item.Name Detail</label>
+                        <input id="Detail" name="Detail" class="form-control" />
+                    </div>
+                }
+            </div>
+        
+            <div class="form-group">
+                <label class="control-label">Price</label>
+                <input id="Price" name="Price" type="number" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Discount</label>
+                <input id="Discount" name="Discount" type="number" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">Category</label>
+                <ul>
+                    @foreach (var item in Model.Categories)
+                    {
+                        <li><input type="checkbox" /> @item.CategoryLanguages.FirstOrDefault(x=>x.LanguageKey=="AZ").Name</li>
+                    }
+                </ul>
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Actors</label>
+                <ul>
+                    @foreach (var item in Model.Actors)
+                    {
+                        <li value="@item.Id" class="SizeID"> <input type="checkbox" /> @item.Name</li>
+                    }
+                </ul>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Picture</label>
+                <input id="photo" type="file" />
+                <div class=" col-lg-12 photo-list d-flex flex-wrap ">
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Director</label>
+                <ul>
+                    @foreach (var item in Model.Directors)
+                    {
+                        <li>
+                            <div class="d-flex align-items-center">
+                                <input type="checkbox" />  <p value="@item.Id" class="ColorID px-1 m-0">@item.Name</p>
+
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="form-group">
+                <input type="submit" class="prod btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<h4 style="color:red;" class="errormessage"></h4>
+
+@section scripts {
+    <script>
+        const RemoveImage = (btn) => {
+            const pictureid = btn.getAttribute("picture-id");
+            btn.offsetParent.style.display = "none"
+            var propic = $("#PhotoID").val().split('-')
+            if (propic != null && propic != '') {
+                propic = propic.filter(x => x !== pictureid)
+                pictureIds = propic
+            }
+            $.ajax({
+                url: "/shared/Removepictures",
+                type: "POST",
+                data: { pictureid },
+                success: function (res) {
+                    $("#PhotoID").val(pictureIds.join('-'));
+                }
+            })
+        }
+    </script>
+    <script>
+            var pictureIds = []
+        $("#photo").change(function () {
+            var pictures = this.files;
+            var PicsData = new FormData();
+            for (var i = 0; i < pictures.length; i++) {
+                PicsData.append("Picture", pictures[i])
+            }
+            $.ajax({
+                url: "/shared/UploadPictures",
+                type: "POST",
+                data: PicsData,
+                dataType: "JSON",
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    var resval = res.value
+                    for (var pic of resval) {
+                        pictureIds.push(pic.id);
+                        $(".photo-list").prepend(`
+                        <div class="col-lg-6 myimg">
+                        <img class="img-fluid" src="${pic.url}" alt="Alternate Text" />
+                        <div class="text-center">
+                        <input name="main" class="thubnail" data-ID="${pic.id}" id="mains" type="checkbox" />
+                        <button type="button" onclick="RemoveImage(this)" picture-id="${pic.id}" class=" remove-pic btn btn-danger my-2">remove</button>
+                        </div>
+                            </div>
+`)
+                    }
+                    $("#PhotoID").val(pictureIds.join('-'));
+                }
+            })
+        })
+
+        $("#ProductCreate").on("submit", function (e) {
+            e.preventDefault()
+            $(".loader").show()
+            let sizeIds = [];
+            let colorIds = []
+            $(".SizeID").each((i, elem) => {
+                const sizeId = $(elem).attr("value");
+                const quantity = Number($(elem).next().val());
+                if (quantity != 0 && quantity != null) {
+                    sizeIds.push(sizeId + "~" + quantity);
+                }
+            })
+            $(".ColorID").each((i, col) => {
+                const colorID = $(col).attr("value");
+                const quantity = Number($(col).next().val());
+                if (quantity != 0 && quantity != null) {
+                    colorIds.push(colorID + "~" + quantity);
+                }
+            })
+            $("#sizeIds").val(sizeIds)
+            $("#colorIds").val(colorIds)
+            var main = []
+            $(".myimg #mains").each((i, elem) => {
+                if ($(elem).is(":checked")) {
+                    var mainid = $(elem).attr("data-ID")
+                    $(".thubnail").val(mainid)
+                }
+            })
+            console.log($(".thubnail").val())
+            $.ajax({
+                url: "/dashboard/products/create",
+                method: "POST",
+                data: $("#ProductCreate").serialize(),
+                success: function (res) {
+                    $(".loader").hide()
+                    if (res.value.success == true) {
+                        Swal.fire({
+                            position: 'bottom-end',
+                            icon: 'success',
+                            title: 'Product successfully added',
+                            showConfirmButton: false,
+                            timer: 500
+                        })
+                        setTimeout(() => {
+                            window.location = "/Dashboard/products/Index"
+                        }, 1000)
+                    }
+                    else {
+                        $(".errormessage").text(res.value.message)
+                    }
+                }
+            })
+        })
+    </script>
+}
